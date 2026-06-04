@@ -162,6 +162,24 @@ require("lazy").setup({
         vim.keymap.set("n", "<leader>e", ":Neotree toggle<CR>")
         end,
     },
+
+    { --seletor de temas
+    "zaldih/themery.nvim",
+    config = function()
+        require("themery").setup({
+            themes = {
+                "koda-dark",
+                "koda-light",
+                "koda-glade",
+                "koda-moss",
+                "tokyonight",
+                "tokyonight-night",
+                "tokyonight-storm",
+                "tokyonight-day",
+            },
+        })
+    end
+        },
     
     {
     "goolord/alpha-nvim", --interface
@@ -233,11 +251,11 @@ require("lazy").setup({
     
 })
 
-vim.cmd.colorscheme("tokyonight-night")
-
 local builtin = require("telescope.builtin") --atalhos telescope
 
 vim.keymap.set("n", "<leader>ff", builtin.find_files, {}) --buscar arquivos
 vim.keymap.set("n", "<leader>fg", builtin.live_grep, {}) --buscar texto dentro dos arquivos
 vim.keymap.set("n", "<leader>fb", builtin.buffers, {}) --listar buffers abertos
 vim.keymap.set("n", "<leader>fh", builtin.help_tags, {}) --help
+
+vim.keymap.set("n", "<leader>tt", ":Themery<CR>") --trocar de tema
