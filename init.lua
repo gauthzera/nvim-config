@@ -96,18 +96,45 @@ require("lazy").setup({
         end,
     },
     
-    {
-    "hrsh7th/nvim-cmp", --mostra autocomplete
+   {
+    "hrsh7th/nvim-cmp", --mostra autcomplete
     dependencies = {
         "hrsh7th/cmp-nvim-lsp",
+        "L3MON4D3/LuaSnip",
     },
+
     config = function()
         local cmp = require("cmp")
+        local luasnip = require("luasnip")
 
         cmp.setup({
-            mapping = cmp.mapping.preset.insert({
-                ["<Tab>"] = cmp.mapping.select_next_item(),
-                ["<S-Tab>"] = cmp.mapping.select_prev_item(),
+            snippet = {
+                expand = function(args)
+                    luasnip.lsp_expand(args.body)
+                end,
+            },
+            --config de snippets
+            mapping = cmp.mapping.preset.insert({ 
+                ["<Tab>"] = cmp.mapping(function(fallback) --vai para o próximo bloco do snippet
+                    if luasnip.expand_or_jumpable() then
+                        luasnip.expand_or_jump()
+                    elseif cmp.visible() then
+                        cmp.select_next_item()
+                    else
+                        fallback()
+                    end
+                end, { "i", "s" }),
+
+                ["<S-Tab>"] = cmp.mapping(function(fallback) --volta para o bloco anterior
+                    if luasnip.jumpable(-1) then
+                        luasnip.jump(-1)
+                    elseif cmp.visible() then
+                        cmp.select_prev_item()
+                    else
+                        fallback()
+                    end
+                end, { "i", "s" }),
+
                 ["<CR>"] = cmp.mapping.confirm({ select = true }),
             }),
 
@@ -115,8 +142,8 @@ require("lazy").setup({
                 { name = "nvim_lsp" },
             },
         })
-    end,
-    },
+            end,
+        },
 
     {
         "neovim/nvim-lspconfig",
@@ -163,7 +190,7 @@ require("lazy").setup({
         end,
     },
 
-    { --seletor de temas
+    {--seletor de temas
     "zaldih/themery.nvim",
     config = function()
         require("themery").setup({
@@ -179,6 +206,11 @@ require("lazy").setup({
             },
         })
     end
+        },
+
+        { --plugin de snippets
+        "L3MON4D3/LuaSnip",
+        dependencies = { "rafamadriz/friendly-snippets" },
         },
     
     {
@@ -248,7 +280,7 @@ require("lazy").setup({
     },
 
     { "oskarnurm/koda.nvim" },
-    
+
 })
 
 local builtin = require("telescope.builtin") --atalhos telescope
