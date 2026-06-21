@@ -3,7 +3,6 @@ vim.cmd("syntax enable")
 vim.opt.termguicolors = true
 vim.opt.background = "dark"
 
-
 vim.opt.number = true
 vim.opt.cursorline = true
 
@@ -97,67 +96,72 @@ require("lazy").setup({
     },
     
    {
-    "hrsh7th/nvim-cmp", --mostra autocomplete
+    "hrsh7th/nvim-cmp", --autocomplete
     dependencies = {
         "hrsh7th/cmp-nvim-lsp",
-        "L3MON4D3/LuaSnip",
     },
 
-	config = function()
+    config = function()
         local cmp = require("cmp")
-        local luasnip = require("luasnip")
 
-        -- Navegação de snippets
-        vim.keymap.set({ "i", "s" }, "<C-j>", function() --avança campo do snippet
-            if luasnip.expand_or_jumpable() then
-                luasnip.expand_or_jump()
+        vim.keymap.set({ "i", "s" }, "<C-j>", function() --ctrl j avança bloco do snippet
+            if vim.snippet and vim.snippet.active({ direction = 1 }) then
+                vim.snippet.jump(1)
             end
         end, { silent = true })
 
-        vim.keymap.set({ "i", "s" }, "<C-k>", function() --volta campo do snippet
-            if luasnip.jumpable(-1) then
-                luasnip.jump(-1)
+        vim.keymap.set({ "i", "s" }, "<C-k>", function() --ctrl k volta bloco do snippet
+            if vim.snippet and vim.snippet.active({ direction = -1 }) then
+                vim.snippet.jump(-1)
             end
         end, { silent = true })
 
         cmp.setup({
             snippet = {
                 expand = function(args)
-                    luasnip.lsp_expand(args.body)
+                    vim.snippet.expand(args.body)
                 end,
             },
 
-            mapping = cmp.mapping.preset.insert({ --proxima sugestão
+            mapping = cmp.mapping.preset.insert({
                 ["<Tab>"] = cmp.mapping(function(fallback)
                     if cmp.visible() then
                         cmp.select_next_item()
                     else
                         fallback()
                     end
-                end, { "i", "s" }),
+                end, { "i" }),
 
-                ["<S-Tab>"] = cmp.mapping(function(fallback) --volta sugestão
+                ["<S-Tab>"] = cmp.mapping(function(fallback)
                     if cmp.visible() then
                         cmp.select_prev_item()
                     else
                         fallback()
                     end
-                end, { "i", "s" }),
+                end, { "i" }),
 
-                ["<CR>"] = cmp.mapping.confirm({ select = true }),
+                ["<CR>"] = cmp.mapping(function(fallback)
+                    if cmp.visible() then
+                        cmp.confirm({ select = true })
+                    else
+                        fallback()
+                    end
+                end, { "i" }),
+
+                ["<C-e>"] = cmp.mapping.abort(),
             }),
 
             sources = {
                 { name = "nvim_lsp" },
             },
-        })
+            })
         end,
-    },
-    
+    }, 
+
     {
         "neovim/nvim-lspconfig",
         config = function()
-            local capabilities = require("cmp_nvim_lsp").default_capabilities()            
+            local capabilities = require("cmp_nvim_lsp").default_capabilities()                     
             vim.lsp.config("clangd", {
                 capabilities = capabilities,
                 cmd = { "clangd" },
@@ -167,7 +171,6 @@ require("lazy").setup({
             vim.lsp.enable("clangd")
         end,
     },
-            
     
     {
     "nvim-telescope/telescope.nvim", --busca de arquivos/textos
@@ -216,12 +219,7 @@ require("lazy").setup({
         })
     end
         },
-
-        { --plugin de snippets
-        "L3MON4D3/LuaSnip",
-        dependencies = { "rafamadriz/friendly-snippets" },
-        },
-    
+           
     {
     "goolord/alpha-nvim", --interface
     dependencies = {
